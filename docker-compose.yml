@@ -1,0 +1,104 @@
+name: taller-tendencias
+
+services:
+  # ---------------------------------------------------------------------------
+  # Servicio C: PostgreSQL. Solo accesible dentro de la red interna (SIN "ports").
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: taller_db
+    restart: unless-stopped
+    environment:
+      # PostgreSQL crea la base de datos a partir de estas variables
+      # (por eso 01-init.sql no contiene CREATE DATABASE).
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Scripts .sql ejecutados automáticamente solo en la primera inicialización
+      - ./app/init-db:/docker-entrypoint-initdb.d:ro
+    expose:
+      - "5432"   # visible solo para otros contenedores de la red
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - taller-network
+
+  # ---------------------------------------------------------------------------
+  # Servicio B: API Flask (puerto 3000). Código en ./app (aún no implementado).
+  # ---------------------------------------------------------------------------
+  web:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: taller_web
+    restart: unless-stopped
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - taller-network
+
+  # ---------------------------------------------------------------------------
+  # Servicio D: pgAdmin (puerto 8080 en el host).
+  # ---------------------------------------------------------------------------
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: taller_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      # Registra el servidor "db" automáticamente (la contraseña se pide al conectar)
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - taller-network
+
+  # ---------------------------------------------------------------------------
+  # Servicio A: Frontend servido por Nginx (puerto 5000 en el host).
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: taller_frontend
+    restart: unless-stopped
+    ports:
+      - "5000:80"
+    depends_on:
+      - web
+    networks:
+      - taller-network
+
+volumes:
+  pgdata:
+    name: taller_pgdata
+  pgadmin_data:
+    name: taller_pgadmin_data
+
+networks:
+  taller-network:
+    name: taller-network
+    driver: bridge
