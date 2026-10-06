@@ -1,0 +1,4 @@
+# Dependencias provisionales para el backend (ajustar al implementarlo)
+flask
+flask-cors
+psycopg2-binary
