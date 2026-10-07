@@ -202,7 +202,9 @@ En PowerShell de Windows hay que usar `curl.exe` en lugar de `curl`.
 
 ### 3. Frontend funcionando en el navegador
 
-> Captura pendiente: se agrega cuando `frontend/index.html` esté terminado.
+`http://localhost:5000` servido por Nginx. La página consume los endpoints `/categorias`, `/clientes`, `/productos` y `/pedidos` con `fetch()`, muestra los registros en tablas y permite crear, editar y eliminar desde un formulario lateral.
+
+![Frontend funcionando](docs/capturas/04-frontend.png)
 
 ### 4. pgAdmin conectado mostrando las tablas
 
