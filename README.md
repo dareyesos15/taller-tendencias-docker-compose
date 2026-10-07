@@ -143,6 +143,7 @@ Recursos disponibles y sus campos (los obligatorios al crear van en **negrita**)
 | `clientes` | **`nombre`**, **`email`**, `ciudad` |
 | `productos` | **`nombre`**, **`precio`**, **`categoria_id`**, `stock` |
 | `pedidos` | **`cliente_id`**, `estado` (`pendiente`, `enviado`, `entregado` o `cancelado`) |
+| `detalle_pedido` | **`pedido_id`**, **`producto_id`**, **`cantidad`**, **`precio_unitario`** |
 
 ### Ejemplos con curl
 
@@ -159,6 +160,11 @@ curl -X POST http://localhost:3000/categorias \
 curl -X PUT http://localhost:3000/productos/1 \
      -H "Content-Type: application/json" \
      -d '{"precio": 79900}'
+
+# Agregar 2 unidades del producto 3 al pedido 5
+curl -X POST http://localhost:3000/detalle_pedido \
+     -H "Content-Type: application/json" \
+     -d '{"pedido_id": 5, "producto_id": 3, "cantidad": 2, "precio_unitario": 45000}'
 
 # Eliminar el cliente 6
 curl -X DELETE http://localhost:3000/clientes/6
@@ -204,7 +210,7 @@ En PowerShell de Windows hay que usar `curl.exe` en lugar de `curl`.
 
 ### 3. Frontend funcionando en el navegador
 
-`http://localhost:5000` servido por Nginx. La página consume los endpoints `/categorias`, `/clientes`, `/productos` y `/pedidos` con `fetch()`, muestra los registros en tablas y permite crear, editar y eliminar desde un formulario lateral.
+`http://localhost:5000` servido por Nginx. La página consume los endpoints `/categorias`, `/clientes`, `/productos`, `/pedidos` y `/detalle_pedido` con `fetch()`. La vista de inicio muestra un resumen (totales, últimos pedidos y productos con menos stock), y cada sección muestra sus registros en una tabla con buscador y permite crear, editar y eliminar desde un formulario lateral. En las relaciones se muestran nombres en lugar de solo ids (por ejemplo, "Pedido de Ana Gómez (#1)"), y al agregar un producto a un pedido se sugiere su precio actual.
 
 ![Frontend funcionando](docs/capturas/04-frontend.png)
 
