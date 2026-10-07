@@ -1,5 +1,4 @@
 # Servicio B: API Flask.
-# TODO: el código (app.py) aún no existe; esta imagen base es un valor por defecto.
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -14,5 +13,9 @@ COPY . .
 
 EXPOSE 3000
 
-# TODO: requiere app/app.py (debe escuchar en 0.0.0.0:3000)
+# Python atiende SIGINT (no SIGTERM) para cerrar el servidor de Flask; así
+# "docker-compose down" detiene el contenedor al instante en vez de esperar 10 s.
+STOPSIGNAL SIGINT
+
+# app.py escucha en 0.0.0.0:3000
 CMD ["python", "app.py"]
