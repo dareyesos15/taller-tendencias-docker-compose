@@ -50,9 +50,11 @@ Stack de cuatro servicios orquestados con `docker-compose`, que se comunican por
 │       └── 01-init.sql       # Tablas y datos de ejemplo (se ejecuta al crear la BD)
 ├── frontend/
 │   ├── Dockerfile            # Imagen de Nginx con el frontend
-│   └── index.html            # Interfaz de usuario
+│   ├── index.html            # Interfaz de usuario
+│   ├── styles.css            # Estilos
+│   └── script.js             # Lógica: consumo de la API con fetch()
 ├── pgadmin/
-│   └── servers.json          # Registra el servidor "db" en pgAdmin automáticamente
+│   └── servers.template.json # Plantilla que registra el servidor "db" en pgAdmin (usuario y BD salen de .env)
 ├── docs/capturas/            # Capturas de pantalla de este README
 └── README.md
 ```
@@ -178,7 +180,7 @@ En PowerShell de Windows hay que usar `curl.exe` en lugar de `curl`.
 ## pgAdmin
 
 1. Abrir http://localhost:8080. No pide inicio de sesión.
-2. El servidor **taller_db** ya aparece registrado en *Servers* (lo carga `pgadmin/servers.json`).
+2. El servidor **taller_db** ya aparece registrado en *Servers* (lo genera `pgadmin/servers.template.json` con los valores de `.env`).
 3. Al expandirlo, pgAdmin pide la contraseña: es el valor de `POSTGRES_PASSWORD` en `.env`.
 4. Las tablas están en *Databases → taller_db → Schemas → public → Tables*.
 

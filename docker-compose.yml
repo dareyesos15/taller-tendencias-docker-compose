@@ -64,12 +64,22 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
       PGADMIN_CONFIG_SERVER_MODE: "False"
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+      PGADMIN_SERVER_JSON_FILE: /tmp/servers.json
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+    # Genera servers.json a partir de la plantilla con los valores de .env y
+    # luego arranca pgAdmin con su entrypoint original.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        sed -e "s/__POSTGRES_DB__/$$POSTGRES_DB/g" -e "s/__POSTGRES_USER__/$$POSTGRES_USER/g"
+        /pgadmin/servers.template.json > /tmp/servers.json && exec /entrypoint.sh
     ports:
       - "8080:80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-      # Registra el servidor "db" automáticamente (la contraseña se pide al conectar)
-      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+      # Plantilla para registrar el servidor "db" automáticamente (la contraseña se pide al conectar)
+      - ./pgadmin/servers.template.json:/pgadmin/servers.template.json:ro
     depends_on:
       db:
         condition: service_healthy
