@@ -30,7 +30,7 @@ services:
       - taller-network
 
   # ---------------------------------------------------------------------------
-  # Servicio B: API Flask (puerto 3000). Código en ./app (aún no implementado).
+  # Servicio B: API Flask (puerto 3000). Código en ./app
   # ---------------------------------------------------------------------------
   web:
     build:
