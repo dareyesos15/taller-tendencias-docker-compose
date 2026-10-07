@@ -7,7 +7,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Paleta inspirada en los tonos carmesí, rosa intenso y negro de un álbum de Stray Kids */
     :root {
       --fondo: #fff4f6;
       --tarjeta: #ffffff;
@@ -251,6 +250,71 @@
     .botones { display: flex; gap: 8px; margin-top: 6px; }
     .botones .principal { flex: 1; }
 
+    /* ---------- vista de inicio ---------- */
+    .hero {
+      background: linear-gradient(120deg, var(--negro) 0%, #6e0b25 55%, var(--primario) 100%);
+      color: #fff;
+      border-radius: 18px;
+      padding: 30px 32px;
+      margin-bottom: 22px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(158,18,54,.25);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -70px;
+      top: -70px;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,111,163,.55), transparent 70%);
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      right: 120px;
+      bottom: -90px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,111,163,.25), transparent 70%);
+    }
+    .hero .fecha { margin: 0 0 10px; font-size: .85rem; opacity: .7; text-transform: capitalize; }
+    .hero h3 { margin: 0 0 8px; font-size: 1.7rem; position: relative; z-index: 1; }
+    .hero p { margin: 0; opacity: .85; max-width: 580px; position: relative; z-index: 1; }
+
+    .paneles { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .panel-titulo { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .panel-titulo h3 { margin: 0; font-size: 1.05rem; color: var(--primario-oscuro); }
+    .enlace {
+      background: none;
+      border: none;
+      color: var(--primario);
+      font: inherit;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .enlace:hover { text-decoration: underline; }
+    .pill {
+      display: inline-block;
+      padding: 3px 11px;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 600;
+      text-transform: capitalize;
+      background: #ffe0ea;
+      color: var(--primario-oscuro);
+    }
+    .pill.enviado { background: var(--primario); color: #fff; }
+    .pill.entregado { background: var(--negro); color: #fff; }
+    .pill.cancelado { background: #eee; color: #888; text-decoration: line-through; }
+    .stock-bajo { color: var(--peligro); font-weight: 700; }
+    .oculto { display: none !important; }
+    @media (max-width: 900px) { .paneles { grid-template-columns: 1fr; } }
+
     /* ---------- aviso ---------- */
     #aviso {
       position: fixed;
@@ -309,9 +373,32 @@
         <button class="principal" id="btn-nuevo">+ Nuevo</button>
       </div>
 
+      <section class="hero" id="hero">
+        <p class="fecha" id="hero-fecha"></p>
+        <h3>¡Bienvenido al panel de la tienda! </h3>
+        <p>Aquí puedes ver un resumen de la información guardada en PostgreSQL y administrar categorías, clientes, productos y pedidos a través de la API Flask.</p>
+      </section>
+
       <section class="stats" id="stats"></section>
 
-      <section class="card">
+      <section class="paneles" id="paneles">
+        <div class="card">
+          <div class="panel-titulo">
+            <h3>Últimos pedidos</h3>
+            <button class="enlace" data-entidad="pedidos">Ver todos →</button>
+          </div>
+          <div class="tabla-scroll" id="ultimos-pedidos"></div>
+        </div>
+        <div class="card">
+          <div class="panel-titulo">
+            <h3>Productos con menos stock</h3>
+            <button class="enlace" data-entidad="productos">Ver todos →</button>
+          </div>
+          <div class="tabla-scroll" id="poco-stock"></div>
+        </div>
+      </section>
+
+      <section class="card" id="vista-tabla">
         <div class="card-head">
           <span id="resumen"></span>
           <input id="buscar" type="search" placeholder="Buscar en la tabla…">
@@ -365,12 +452,12 @@
         titulo: 'Pedidos', singular: 'pedido',
         campos: [
           { nombre: 'cliente_id', etiqueta: 'Cliente', tipo: 'select', ref: 'clientes', requerido: true },
-          { nombre: 'estado', etiqueta: 'Estado', tipo: 'text', sugerencias: true }
+          { nombre: 'estado', etiqueta: 'Estado', tipo: 'select', opciones: ['pendiente', 'enviado', 'entregado', 'cancelado'] }
         ]
       }
     };
 
-    let actual = 'categorias';
+    let actual = 'inicio';
     let editandoId = null;
     let filtro = '';
     const datos = {};
@@ -431,7 +518,10 @@
     // ---------- navegación lateral y tarjetas ----------
     function pintarNavegacion() {
       const nav = document.getElementById('pestanas');
-      nav.innerHTML = Object.entries(ENTIDADES).map(([clave, cfg]) => `
+      nav.innerHTML = `
+        <button data-entidad="inicio" class="${actual === 'inicio' ? 'activo' : ''}">
+          <span>Inicio</span><span>✦</span>
+        </button>` + Object.entries(ENTIDADES).map(([clave, cfg]) => `
         <button data-entidad="${clave}" class="${clave === actual ? 'activo' : ''}">
           <span>${cfg.titulo}</span>
           <span class="contador">${(datos[clave] || []).length}</span>
@@ -445,11 +535,13 @@
           <div class="nombre">${cfg.titulo}</div>
         </button>`
       ).join('');
-
-      document.querySelectorAll('[data-entidad]').forEach(b =>
-        b.addEventListener('click', () => cambiarEntidad(b.dataset.entidad))
-      );
     }
+
+    // Un solo manejador para todos los botones que llevan a una sección (menú, tarjetas, "Ver todos").
+    document.addEventListener('click', e => {
+      const boton = e.target.closest('[data-entidad]');
+      if (boton) cambiarEntidad(boton.dataset.entidad);
+    });
 
     function cambiarEntidad(entidad) {
       actual = entidad;
@@ -470,10 +562,67 @@
     }
 
     function pintarTodo() {
-      document.getElementById('tabla-titulo').textContent = ENTIDADES[actual].titulo;
-      document.getElementById('btn-nuevo').textContent = `+ Nuevo ${ENTIDADES[actual].singular}`;
+      const esInicio = actual === 'inicio';
+      document.getElementById('hero').classList.toggle('oculto', !esInicio);
+      document.getElementById('paneles').classList.toggle('oculto', !esInicio);
+      document.getElementById('vista-tabla').classList.toggle('oculto', esInicio);
+      document.getElementById('btn-nuevo').classList.toggle('oculto', esInicio);
+      document.getElementById('tabla-titulo').textContent = esInicio ? 'Inicio' : ENTIDADES[actual].titulo;
       pintarNavegacion();
-      pintarTabla();
+
+      if (esInicio) {
+        pintarInicio();
+      } else {
+        document.getElementById('btn-nuevo').textContent = `+ Nuevo ${ENTIDADES[actual].singular}`;
+        pintarTabla();
+      }
+    }
+
+    // ---------- vista de inicio ----------
+    function dinero(valor) {
+      const n = Number(valor);
+      return isNaN(n) ? valor : n.toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+    }
+
+    function pintarInicio() {
+      document.getElementById('hero-fecha').textContent = new Date().toLocaleDateString('es-CO', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+      });
+
+      // Últimos 5 pedidos, del más reciente al más antiguo
+      const pedidos = [...(datos.pedidos || [])].sort((a, b) => b.id - a.id).slice(0, 5);
+      const colFecha = pedidos[0] && Object.keys(pedidos[0]).find(k => /fecha|creado|created/i.test(k));
+      document.getElementById('ultimos-pedidos').innerHTML = pedidos.length === 0
+        ? '<p class="vacio">No hay pedidos todavía.</p>'
+        : `<table>
+            <thead><tr><th>#</th><th>Cliente</th><th>Estado</th>${colFecha ? '<th>Fecha</th>' : ''}</tr></thead>
+            <tbody>${pedidos.map(p => `
+              <tr>
+                <td>${esc(p.id)}</td>
+                <td>${esc(nombrePorId('clientes', p.cliente_id))}</td>
+                <td><span class="pill ${esc(String(p.estado || '').toLowerCase())}">${esc(p.estado || '—')}</span></td>
+                ${colFecha ? `<td>${esc(String(p[colFecha]).slice(0, 10))}</td>` : ''}
+              </tr>`).join('')}
+            </tbody>
+          </table>`;
+
+      // 5 productos con menos unidades disponibles
+      const productos = [...(datos.productos || [])]
+        .sort((a, b) => Number(a.stock ?? 0) - Number(b.stock ?? 0))
+        .slice(0, 5);
+      document.getElementById('poco-stock').innerHTML = productos.length === 0
+        ? '<p class="vacio">No hay productos todavía.</p>'
+        : `<table>
+            <thead><tr><th>Producto</th><th>Categoría</th><th>Stock</th><th>Precio</th></tr></thead>
+            <tbody>${productos.map(p => `
+              <tr>
+                <td>${esc(p.nombre)}</td>
+                <td>${esc(nombrePorId('categorias', p.categoria_id))}</td>
+                <td class="${Number(p.stock) <= 5 ? 'stock-bajo' : ''}">${esc(p.stock ?? 0)}</td>
+                <td>${esc(dinero(p.precio))}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>`;
     }
 
     // ---------- panel del formulario ----------
@@ -506,6 +655,14 @@
         const valor = registro ? registro[campo.nombre] : '';
         const req = campo.requerido ? 'required' : '';
         const marca = campo.requerido ? ' *' : '';
+
+        if (campo.opciones) {
+          const opciones = campo.opciones.map(op =>
+            `<option value="${op}" ${op === String(valor || 'pendiente') ? 'selected' : ''}>${op.charAt(0).toUpperCase() + op.slice(1)}</option>`
+          ).join('');
+          return `<label for="${campo.nombre}">${campo.etiqueta}${marca}</label>
+                  <select id="${campo.nombre}" name="${campo.nombre}" ${req}>${opciones}</select>`;
+        }
 
         if (campo.tipo === 'select') {
           const opciones = (datos[campo.ref] || []).map(item =>
@@ -544,7 +701,7 @@
       for (const campo of cfg.campos) {
         const valor = document.getElementById(campo.nombre).value.trim();
         if (valor === '') continue;
-        if (campo.tipo === 'select' || campo.paso === '1') cuerpo[campo.nombre] = parseInt(valor, 10);
+        if (campo.ref || campo.paso === '1') cuerpo[campo.nombre] = parseInt(valor, 10);
         else if (campo.tipo === 'number') cuerpo[campo.nombre] = parseFloat(valor);
         else cuerpo[campo.nombre] = valor;
       }
