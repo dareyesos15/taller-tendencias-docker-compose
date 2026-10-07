@@ -14,4 +14,3 @@ Docker Compose infrastructure for the "Tendencias" course assignment (see `Activ
 
 - Never hardcode credentials; they live only in `.env` (`.env.example` is the template).
 - The PostgreSQL service (`db`) must never publish ports to the host.
-- Only infrastructure files are in scope unless told otherwise; do not write backend or frontend code.
