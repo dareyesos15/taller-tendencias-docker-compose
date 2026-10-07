@@ -45,6 +45,10 @@ RESOURCES = {
         "columns": ["cliente_id", "estado"],
         "required": ["cliente_id"],
     },
+    "detalle_pedido": {
+        "columns": ["pedido_id", "producto_id", "cantidad", "precio_unitario"],
+        "required": ["pedido_id", "producto_id", "cantidad", "precio_unitario"],
+    },
 }
 
 app = Flask(__name__, static_folder=None)

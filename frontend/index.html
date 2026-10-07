@@ -1,82 +1,82 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Taller Tendencias - Panel</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taller Tendencias - Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="app">
-    <aside class="sidebar">
-      <div class="marca">
-        <h1>Panel de tienda</h1>
-        <p>Taller Tendencias · Docker Compose</p>
-      </div>
-      <nav id="pestanas"></nav>
-      <div class="pie-sidebar">
-        <span id="estado-api">Verificando API…</span>
-        <code id="api-url"></code>
-      </div>
-    </aside>
+<div class="app">
+<aside class="sidebar">
+<div class="marca">
+<h1>Panel de tienda</h1>
+<p>Taller Tendencias · Docker Compose</p>
+</div>
+<nav id="pestanas"></nav>
+<div class="pie-sidebar">
+<span id="estado-api">Verificando API…</span>
+<code id="api-url"></code>
+</div>
+</aside>
 
-    <div class="contenido">
-      <div class="topbar">
-        <div>
-          <p class="migas">Administración</p>
-          <h2 id="tabla-titulo"></h2>
-        </div>
-        <button class="principal" id="btn-nuevo">+ Nuevo</button>
-      </div>
+<div class="contenido">
+<div class="topbar">
+<div>
+<p class="migas">Administración</p>
+<h2 id="tabla-titulo"></h2>
+</div>
+<button class="principal" id="btn-nuevo">+ Nuevo</button>
+</div>
 
-      <section class="hero" id="hero">
-        <p class="fecha" id="hero-fecha"></p>
-        <h3>¡Bienvenido al panel de la tienda! </h3>
-        <p>Aquí puedes ver un resumen de la información guardada en PostgreSQL y administrar categorías, clientes, productos y pedidos a través de la API Flask.</p>
-      </section>
+<section class="hero" id="hero">
+<p class="fecha" id="hero-fecha"></p>
+<h3>¡Bienvenido al panel de la tienda! </h3>
+<p>Aquí puedes ver un resumen de la información guardada en PostgreSQL y administrar categorías, clientes, productos, pedidos y sus detalles a través de la API Flask.</p>
+</section>
 
-      <section class="stats" id="stats"></section>
+<section class="stats" id="stats"></section>
 
-      <section class="paneles" id="paneles">
-        <div class="card">
-          <div class="panel-titulo">
-            <h3>Últimos pedidos</h3>
-            <button class="enlace" data-entidad="pedidos">Ver todos →</button>
-          </div>
-          <div class="tabla-scroll" id="ultimos-pedidos"></div>
-        </div>
-        <div class="card">
-          <div class="panel-titulo">
-            <h3>Productos con menos stock</h3>
-            <button class="enlace" data-entidad="productos">Ver todos →</button>
-          </div>
-          <div class="tabla-scroll" id="poco-stock"></div>
-        </div>
-      </section>
+<section class="paneles" id="paneles">
+<div class="card">
+<div class="panel-titulo">
+<h3>Últimos pedidos</h3>
+<button class="enlace" data-entidad="pedidos">Ver todos →</button>
+</div>
+<div class="tabla-scroll" id="ultimos-pedidos"></div>
+</div>
+<div class="card">
+<div class="panel-titulo">
+<h3>Productos con menos stock</h3>
+<button class="enlace" data-entidad="productos">Ver todos →</button>
+</div>
+<div class="tabla-scroll" id="poco-stock"></div>
+</div>
+</section>
 
-      <section class="card" id="vista-tabla">
-        <div class="card-head">
-          <span id="resumen"></span>
-          <input id="buscar" type="search" placeholder="Buscar en la tabla…">
-        </div>
-        <div class="tabla-scroll" id="tabla"></div>
-      </section>
-    </div>
-  </div>
+<section class="card" id="vista-tabla">
+<div class="card-head">
+<span id="resumen"></span>
+<input id="buscar" type="search" placeholder="Buscar en la tabla…">
+</div>
+<div class="tabla-scroll" id="tabla"></div>
+</section>
+</div>
+</div>
 
-  <div id="fondo-panel"></div>
-  <aside id="panel" aria-hidden="true">
-    <div class="panel-head">
-      <h2 id="form-titulo"></h2>
-      <button id="cerrar" title="Cerrar">×</button>
-    </div>
-    <form id="formulario"></form>
-  </aside>
+<div id="fondo-panel"></div>
+<aside id="panel" aria-hidden="true">
+<div class="panel-head">
+<h2 id="form-titulo"></h2>
+<button id="cerrar" title="Cerrar">×</button>
+</div>
+<form id="formulario"></form>
+</aside>
 
-  <div id="aviso"></div>
+<div id="aviso"></div>
 
-    <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
